@@ -1,0 +1,258 @@
+{
+  "name": "Instagram_Downloader",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -368,
+        -48
+      ],
+      "id": "632ad7ec-1a78-4a01-82c2-de68628addc5",
+      "name": "Telegram Trigger",
+      "webhookId": "9383d980-6a19-4a4a-9da5-87e39542f413",
+      "credentials": {
+        "telegramApi": {
+          "id": "7VHRkckGT6qm1mrZ",
+          "name": "Instagram_Downloader"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://instagram-reels-downloader-api.p.rapidapi.com/download",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $json.message.text }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-rapidapi-host",
+              "value": "instagram-reels-downloader-api.p.rapidapi.com"
+            },
+            {
+              "name": "x-rapidapi-key",
+              "value": "3d70d164dcmshdeeece870134084p1ba54cjsn7958ee94d9fd"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        48,
+        32
+      ],
+      "id": "50466a87-4830-46a7-b98e-9cba0924e7f0",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.data.medias[0].url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        256,
+        32
+      ],
+      "id": "930f04ba-053b-4685-9954-483b50afb5cc",
+      "name": "HTTP Request4"
+    },
+    {
+      "parameters": {
+        "operation": "sendVideo",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "binaryData": true,
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        464,
+        32
+      ],
+      "id": "6ce2692c-aea1-44fa-ac09-761cb9dd2563",
+      "name": "Send a video",
+      "webhookId": "564387b9-ac24-4b54-ae70-edf5fff9d221",
+      "credentials": {
+        "telegramApi": {
+          "id": "7VHRkckGT6qm1mrZ",
+          "name": "Instagram_Downloader"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "/start",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "1e604181-4a0a-472b-94cf-43d7436156dd"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "c3d10b01-8ea0-4b11-9a4f-fa63d53ce19e",
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "/start",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEquals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -176,
+        -48
+      ],
+      "id": "50e775c0-de2e-4337-b335-8bb957fb9fc6",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "سلام \nبه ربات دانلود Reels انستاگرام خوش آمدید!\nلطفا لینک Reels مورد نظر را ارسال کنید.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        64,
+        -160
+      ],
+      "id": "4029d734-6b05-453d-bc5a-31f6fdba1a47",
+      "name": "Send a text message",
+      "webhookId": "4cdfb23f-5a8e-410c-bcdf-3e00116cfb40",
+      "credentials": {
+        "telegramApi": {
+          "id": "7VHRkckGT6qm1mrZ",
+          "name": "Instagram_Downloader"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request4": {
+      "main": [
+        [
+          {
+            "node": "Send a video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "f505b77c-d997-468a-950b-505f818fa3f5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "bcdb15ef08ea53913b97983d05b8999b3799e508761b41e5475154b7f7280645"
+  },
+  "id": "S8xuKD7tAFdLXnuf",
+  "tags": []
+}
